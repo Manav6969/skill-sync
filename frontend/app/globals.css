@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@layer utilities {
+    @media (max-width: 640px) {
+        .max-iphone\:text-sm {
+            font-size: 0.875rem;
+        }
+
+        .max-iphone\:flex {
+            display: flex;
+            flex-direction: column;
+            justify-content: between;
+            align-items: center;
+            height:max-content;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        /* Add any custom styles you want */
+    }
+}
