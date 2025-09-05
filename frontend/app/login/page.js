@@ -98,7 +98,6 @@ const Login = () => {
         draggable
         pauseOnHover
         theme="colored"
-        transition={Bounce}
       />
       <Navbar></Navbar>
       <div className="min-h-screen bg-gradient-to-b from-black via-black to-purple-900 flex items-center justify-center px-4">
