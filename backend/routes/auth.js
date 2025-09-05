@@ -16,7 +16,7 @@ router.post('/login', async (req, res) => {
     if (!userData)
       return res.status(401).json({ redirectTo: "/signup" });
 
-    if(userData.password === null) {
+    if (userData.password === null) {
       return res.status(400).json({ message: "Please login with Google", redirectTo: "/login" });
     }
     const isMatch = await bcrypt.compare(req.body.password, userData.password);
@@ -31,7 +31,8 @@ router.post('/login', async (req, res) => {
       res
         .cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          sameSite: None,
+          sameSite: 'None',
+          secure: true,
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -70,7 +71,8 @@ router.post('/signup', async (req, res) => {
       res
         .cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          sameSite: None,
+          sameSite: 'None',
+          secure: true,
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -101,6 +103,7 @@ router.post('/logout', (req, res) => {
 router.get('/userAuthentication', async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
+    console.log(token)
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -135,7 +138,7 @@ router.post('/refresh', (req, res) => {
 
   jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err) return res.sendStatus(403);
-    const accessToken = generateAccessToken(decoded.id);  
+    const accessToken = generateAccessToken(decoded.id);
     res.status(200).json({ accessToken });
   });
 });

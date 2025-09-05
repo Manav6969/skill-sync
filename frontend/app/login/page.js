@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import { ToastContainer, toast } from 'react-toastify';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
