@@ -75,7 +75,7 @@ const TeamChatBox = ({ teamId }) => {
       socket.emit('sendAllMessage', { message: newMessage });
       setNewMessage('');
     }
-  }, [newMessage, socket, teamId]);
+  }, [newMessage, socket]);
 
   return (
     <div className="min-h-screen flex flex-col text-white bg-gradient-to-b from-black via-[#12001d] to-[#3a005a]">
