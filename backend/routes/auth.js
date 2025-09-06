@@ -26,7 +26,7 @@ router.post('/login', async (req, res) => {
     } else {
 
       const accessToken = generateAccessToken(userData._id);
-      const refreshToken ="Bearer " + generateRefreshToken(userData._id);
+      const refreshToken =`Bearer ${generateRefreshToken(userData._id)}`;
 
       res
         .cookie('refreshToken', refreshToken, {
@@ -65,7 +65,7 @@ router.post('/signup', async (req, res) => {
       await newUser.save();
 
       const accessToken = generateAccessToken(newUser._id);
-      const refreshToken = "Bearer " + generateRefreshToken(newUser._id);
+      const refreshToken = `Bearer ${generateRefreshToken(newUser._id)}`;
 
       res
         .cookie('refreshToken', refreshToken, {
