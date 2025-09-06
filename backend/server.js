@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config(); 
+dotenv.config();
 import { connectDB } from './config/db.js';
 connectDB();
 import express from 'express';
@@ -30,8 +30,8 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: [
-  "http://localhost:3000",   
-  "https://skill-sync-1-u3c8.onrender.com"],
+    "http://localhost:3000",
+    "https://skill-sync-1-u3c8.onrender.com"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
