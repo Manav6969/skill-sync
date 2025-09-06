@@ -32,7 +32,6 @@ router.post('/login', async (req, res) => {
         .cookie('refreshToken', refreshToken, {
           httpOnly: true,
           sameSite: 'None',
-          secure: true,
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -72,7 +71,6 @@ router.post('/signup', async (req, res) => {
         .cookie('refreshToken', refreshToken, {
           httpOnly: true,
           sameSite: 'None',
-          secure: true,
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
