@@ -31,7 +31,7 @@ app.use(cookieParser());
 app.use(cors({
   origin: [
   "http://localhost:3000",   
-  "https://skill-sync-zn0l.onrender.com"],
+  "https://skill-sync-1-u3c8.onrender.com"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
