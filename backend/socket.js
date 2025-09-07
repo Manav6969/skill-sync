@@ -7,7 +7,7 @@ import User from './models/users.js';
 import AllMessages from './models/AllMessages.js';
 export const initSocket = (server) => {
     const io = new Server(server, {
-        cors: { origin: ['http://localhost:3000', "https://skill-sync-uobs.vercel.app", "https://skill-sync-uobs-p6j57qkld-manav6969s-projects.vercel.app", "skill-sync-kappa.vercel.app"], credentials: true },
+        cors: { origin: ['http://localhost:3000', "https://skill-sync-uobs.vercel.app", "https://skill-sync-uobs-p6j57qkld-manav6969s-projects.vercel.app", "https://skill-sync-kappa.vercel.app"], credentials: true },
     });
 
     io.use((socket, next) => {
