@@ -109,6 +109,7 @@ router.get('/userAuthentication', async (req, res) => {
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+    if (token.startsWith('Bearer ')) token = token.slice(7);
 
     // if (token.startsWith("Bearer ")) {
     //   token = token.slice(7);
@@ -140,12 +141,9 @@ router.get('/getUser', dashboardMiddleware, async (req, res) => {
 
 
 router.post('/refresh', (req, res) => {
-  let token = req.cookies.refreshToken;
+  let token = decodeURIComponent(req.cookies.refreshToken);
+  if (token.startsWith('Bearer ')) token = token.slice(7);
   if (!token) return res.sendStatus(401);
-
-  if (token.startsWith("Bearer ")) {
-    token = token.slice(7);
-  }
 
   jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err) return res.sendStatus(403);
