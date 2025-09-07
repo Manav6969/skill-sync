@@ -26,7 +26,7 @@ router.post('/login', async (req, res) => {
     } else {
 
       const accessToken = generateAccessToken(userData._id);
-      let refreshToken = encodeURIComponent(`Bearer ${generateRefreshToken(userData._id)}`);
+      let refreshToken = (`Bearer ${generateRefreshToken(userData._id)}`);
 
       console.log(refreshToken);
 
@@ -68,7 +68,7 @@ router.post('/signup', async (req, res) => {
       await newUser.save();
 
       const accessToken = generateAccessToken(newUser._id);
-      const refreshToken = encodeURIComponent(`Bearer ${generateRefreshToken(userData._id)}`);
+      const refreshToken = (`Bearer ${generateRefreshToken(userData._id)}`);
 
       res
         .cookie('refreshToken', refreshToken, {
@@ -104,17 +104,17 @@ router.post('/logout', (req, res) => {
 
 router.get('/userAuthentication', async (req, res) => {
   try {
-    let token = decodeURIComponent(req.cookies.refreshToken);
+    let token = (req.cookies.refreshToken);
     console.log(token)
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     if (token.startsWith('Bearer ')) token = token.slice(7);
 
-    // if (token.startsWith("Bearer ")) {
-    //   token = token.slice(7);
-    // }
-    // console.log(token)
+    if (token.startsWith("Bearer ")) {
+      token = token.slice(7);
+    }
+    console.log(token)
 
     jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
       if (err) {
@@ -141,7 +141,7 @@ router.get('/getUser', dashboardMiddleware, async (req, res) => {
 
 
 router.post('/refresh', (req, res) => {
-  let token = decodeURIComponent(req.cookies.refreshToken);
+  let token = (req.cookies.refreshToken);
   if (token.startsWith('Bearer ')) token = token.slice(7);
   if (!token) return res.sendStatus(401);
 
