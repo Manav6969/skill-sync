@@ -17,8 +17,7 @@ export const initSocket = (server) => {
             return next(new Error('Token missing from handshake'));
         }
 
-        if (token.startsWith('Bearer ')) token = token.slice(7);
-
+        token = authHeader.split(' ')[1]
         try {
             const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
             socket.user = decoded;
@@ -65,23 +64,23 @@ export const initSocket = (server) => {
             socket.to(teamId).emit('newMessage', populatedMessage);
         });
 
-        socket.on('joinAllChat', async() => {
+        socket.on('joinAllChat', async () => {
             socket.join("all");
 
             const previousMessages = await AllMessages.find()
-            .sort({createdAt: 1})
-            .populate('sender', 'name')
+                .sort({ createdAt: 1 })
+                .populate('sender', 'name')
             socket.emit('loadPreviousMessages', previousMessages);
         })
 
-        socket.on('sendAllMessage', async ({message})=>{
-           const newMessage = await AllMessages.create({
+        socket.on('sendAllMessage', async ({ message }) => {
+            const newMessage = await AllMessages.create({
                 sender: socket.user.id,
                 text: message,
             });
             const populatedMessage = await newMessage.populate('sender', 'name');
             socket.to("all").emit('newAllMessage', populatedMessage);
-    
+
         })
     });
 };
