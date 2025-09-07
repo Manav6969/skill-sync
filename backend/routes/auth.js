@@ -26,12 +26,13 @@ router.post('/login', async (req, res) => {
     } else {
 
       const accessToken = generateAccessToken(userData._id);
-      const refreshToken =`Bearer ${generateRefreshToken(userData._id)}`;
+      const refreshToken = `Bearer ${generateRefreshToken(userData._id)}`;
 
       res
         .cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          sameSite: 'None',
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -60,7 +61,7 @@ router.post('/signup', async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        avatar: profilepic || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+        avatar: profilepic || "https://imgs.search.brave.com/pkPyTQFTOVFQw7Hki6hg6cgY5FPZ3UzkpUMsnfiuznQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/dmVjdG9yc3RvY2su/Y29tL2kvNTAwcC80/MS85MC9hdmF0YXIt/ZGVmYXVsdC11c2Vy/LXByb2ZpbGUtaWNv/bi1zaW1wbGUtZmxh/dC12ZWN0b3ItNTcy/MzQxOTAuanBn",
       });
       await newUser.save();
 
@@ -70,7 +71,8 @@ router.post('/signup', async (req, res) => {
       res
         .cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          sameSite: 'None',
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -100,11 +102,16 @@ router.post('/logout', (req, res) => {
 
 router.get('/userAuthentication', async (req, res) => {
   try {
-    const token = req.cookies.refreshToken;
+    let token = req.cookies.refreshToken;
     console.log(token)
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    if (token.startsWith("Bearer ")) {
+      token = token.slice(7);
+    }
+    console.log(token)
 
     jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
       if (err) {
@@ -131,8 +138,12 @@ router.get('/getUser', dashboardMiddleware, async (req, res) => {
 
 
 router.post('/refresh', (req, res) => {
-  const token = req.cookies.refreshToken;
+  let token = req.cookies.refreshToken;
   if (!token) return res.sendStatus(401);
+
+  if (token.startsWith("Bearer ")) {
+    token = token.slice(7);
+  }
 
   jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err) return res.sendStatus(403);

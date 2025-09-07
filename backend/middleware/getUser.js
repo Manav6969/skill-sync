@@ -1,14 +1,17 @@
 import express from 'express';
 const router = express.Router();
 import { connectDB } from '../config/db.js';
-import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import user from '../models/users.js';
 await connectDB();
+import cookieParser from "cookie-parser";
+router.use(cookieParser());
+
 
 export const dashboardMiddleware = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split('%20')[1];
+    const token = authHeader && authHeader.split(' ')[1];
+    // console.log(token);
 
     if (!token) return res.sendStatus(401);
 

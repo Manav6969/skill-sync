@@ -17,7 +17,7 @@ passport.use(
         const newUser = await User.create({
           name: profile.displayName,
           email: profile.emails[0].value,
-          avatar: profile.photos[0].value || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+          avatar: profile.photos[0].value || "https://imgs.search.brave.com/pkPyTQFTOVFQw7Hki6hg6cgY5FPZ3UzkpUMsnfiuznQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/dmVjdG9yc3RvY2su/Y29tL2kvNTAwcC80/MS85MC9hdmF0YXIt/ZGVmYXVsdC11c2Vy/LXByb2ZpbGUtaWNv/bi1zaW1wbGUtZmxh/dC12ZWN0b3ItNTcy/MzQxOTAuanBn",
           googleId: profile.id,
           password: null,
         });
