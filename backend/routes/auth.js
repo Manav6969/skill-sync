@@ -28,6 +28,9 @@ router.post('/login', async (req, res) => {
       const accessToken = generateAccessToken(userData._id);
       const refreshToken = `Bearer ${generateRefreshToken(userData._id)}`;
 
+
+      console.log(refreshToken);
+
       res
         .cookie('refreshToken', refreshToken, {
           httpOnly: true,
