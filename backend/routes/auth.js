@@ -95,6 +95,10 @@ router.post('/signup', async (req, res) => {
 router.post('/logout', (req, res) => {
   try {
     res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: '/',
     });
     return res.status(200).json({ message: 'Logged out successfully' });
   } catch (err) {
