@@ -3,7 +3,9 @@ export const fetchWithAuth = async (url, options = {}) => {
 
   if (!options.headers) options.headers = {};
 
-  options.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    options.headers.Authorization = `Bearer ${token}`;
+  }
 
   if (!options.headers['Content-Type'] && ['POST', 'PUT', 'PATCH'].includes(options.method)) {
     options.headers['Content-Type'] = 'application/json';
@@ -24,7 +26,7 @@ export const fetchWithAuth = async (url, options = {}) => {
       const { accessToken } = await refreshRes.json();
       localStorage.setItem('access_token', accessToken);
       options.headers.Authorization = `Bearer ${accessToken}`;
-      
+
       res = await fetch(url, {
         ...options,
         credentials: 'include',
