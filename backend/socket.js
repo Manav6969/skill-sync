@@ -11,7 +11,7 @@ export const initSocket = (server) => {
     });
 
     io.use((socket, next) => {
-        const token = socket.handshake.auth.token;
+        let token = socket.handshake.auth.token;
 
         if (!token) {
             return next(new Error('Token missing from handshake'));
