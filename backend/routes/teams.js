@@ -15,6 +15,11 @@ router.post('/create', dashboardMiddleware, async (req, res) => {
         if (!foundCompetiton) {
             foundCompetiton = await Competition.create({ name: competitionName });
         }
+        let teamFound = await Team.findOne({name: teamName})
+        if(teamFound)
+        {
+          return  res.status(400).json({message : 'Team Already exist'})
+        }
         let team = await Team.create({
             name: teamName,
             description: teamDescription,

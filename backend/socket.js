@@ -16,8 +16,9 @@ export const initSocket = (server) => {
         if (!token) {
             return next(new Error('Token missing from handshake'));
         }
-
-        token = token.split(' ')[1]
+        if (token.startsWith("Bearer ")) {
+            token = token.split(" ")[1];
+        }
         try {
             const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
             socket.user = decoded;
