@@ -36,6 +36,7 @@ router.post('/login', async (req, res) => {
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           path: "/",
+          domain: '.vercel.app',
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -77,6 +78,7 @@ router.post('/signup', async (req, res) => {
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           path: '/',
+          domain: '.vercel.app',
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -98,6 +100,7 @@ router.post('/logout', (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      domain: '.vercel.app',
       path: '/',
     });
     return res.status(200).json({ message: 'Logged out successfully' });
