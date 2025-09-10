@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
-  const token = request.cookies.get('refreshToken')?.value;
+  let token = request.cookies.get('refreshToken')?.value;
+  console.log(token);
+
+   if (token && token.startsWith('Bearer ')) {
+    token = token.slice(7);
+  }
 
   const isProtectedRoute =
     request.nextUrl.pathname.startsWith('/dashboard') ||

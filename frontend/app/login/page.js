@@ -14,7 +14,7 @@ const Login = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    if (token) router.push('/dashboard');
+    if (token) window.location.replace('/dashboard');
   }, [])
 
   const handleSubmit = async (e) => {
@@ -36,7 +36,7 @@ const Login = () => {
 
       if (res.ok && data.accessToken) {
         localStorage.setItem('access_token', data.accessToken);
-        window.location.replace('/dashboard')
+        window.location.replace('/dashboard');
       }
       else {
         const message = data.message;
