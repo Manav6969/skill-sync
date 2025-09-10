@@ -36,7 +36,7 @@ const Login = () => {
 
       if (res.ok && data.accessToken) {
         localStorage.setItem('access_token', data.accessToken);
-        router.push('/dashboard');
+        window.location.replace('/dashboard')
       }
       else {
         const message = data.message;
