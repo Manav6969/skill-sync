@@ -11,7 +11,7 @@ export function middleware(request) {
     request.nextUrl.pathname.startsWith('/chat');
 
   if (isProtectedRoute && !token) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/signup', request.url));
   }
 
   return NextResponse.next();
