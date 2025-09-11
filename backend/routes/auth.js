@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: "Invalid Credentials", redirectTo: "/login" });
     } else {
 
-      const accessToken = generateAccessToken(userData._id);
+      let accessToken = generateAccessToken(userData._id);
       let refreshToken = (`Bearer ${generateRefreshToken(userData._id)}`);
 
       console.log(refreshToken);
@@ -36,7 +36,7 @@ router.post('/login', async (req, res) => {
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           path: "/",
-          domain: '.vercel.app',
+          // domain: '.vercel.app',
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -78,7 +78,7 @@ router.post('/signup', async (req, res) => {
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           path: '/',
-          domain: '.vercel.app',
+          // domain: '.vercel.app',
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
@@ -100,7 +100,7 @@ router.post('/logout', (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      domain: '.vercel.app',
+      // domain: '.vercel.app',
       path: '/',
     });
     return res.status(200).json({ message: 'Logged out successfully' });
