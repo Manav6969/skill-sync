@@ -3,9 +3,36 @@ import React, { useEffect, useState } from 'react';
 import Typewriter from 'typewriter-effect';
 import Navbar from '@/components/Navbar';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
+import { useRouter } from 'next/navigation';
 
 const Skills = () => {
     const [skillsData, setSkillsData] = useState([]);
+    const router = useRouter()
+
+    useEffect(() => {
+        const isloggedin = async () => {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/userAuthentication`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+            if (!(res.ok)) {
+                let token = localStorage.getItem('access_token');
+                if (token) {
+                    localStorage.removeItem('access_token');
+                }
+                const logres = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+
+                router.replace('/login')
+            }
+        }
+
+        isloggedin()
+
+    }, [])
 
     useEffect(() => {
         const skillData = async () => {

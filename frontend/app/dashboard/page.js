@@ -3,13 +3,43 @@ import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { ToastContainer, toast } from 'react-toastify';
+// import { Router } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const Dashboard = () => {
+    const router = useRouter();
     const [user, setUser] = useState(null);
     const [editing, setEditing] = useState(false);
     const [skillsInput, setSkillsInput] = useState('');
     const [showInvites, setShowInvites] = useState(false);
     const [invites, setInvites] = useState([]);
+
+
+    useEffect(() => {
+        const isloggedin = async () => {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/userAuthentication`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+            if (!(res.ok)) {
+                let token = localStorage.getItem('access_token');
+                if (token) {
+                    localStorage.removeItem('access_token');
+                }
+                const logres = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+
+                router.replace('/login')
+            }
+        }
+
+        isloggedin()
+
+    }, [])
+
 
 
     const inviteUser = async () => {
