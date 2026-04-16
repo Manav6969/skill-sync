@@ -115,6 +115,13 @@ const TeamChatBox = ({ teamId }) => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message"
+            onKeyDown={(e)=>{
+              if(e.key == "Enter" && !e.shiftKey)
+              {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
             className="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
           <button

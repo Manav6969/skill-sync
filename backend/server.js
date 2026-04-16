@@ -30,12 +30,12 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: [
-  "http://localhost:3000",   
-  "https://skill-sync-zn0l.onrender.com", "https://skill-sync-uobs.vercel.app", "https://skill-sync-uobs-p6j57qkld-manav6969s-projects.vercel.app", "https://skill-sync-kappa.vercel.app"],
+    "http://localhost:3000",
+    process.env.FRONTEND_URL
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  
 }));
 
 app.use(express.json());
