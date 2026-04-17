@@ -1,27 +1,51 @@
-# Stage 1: Build
-FROM node:18-alpine AS builder
-
+# Stage A: dependencies
+FROM node:20-alpine AS deps
+# Install libc6-compat for Alpine Node
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install
+COPY package.json package-lock.json* ./
+RUN npm ci
 
+# Stage B: builder
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Disable telemetry during build
+ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN npm run build
 
-# Stage 2: Run
-FROM node:18-alpine
-
+# Stage C: runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-COPY --from=builder /app/.next ./.next
+# Create a non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+# Copy strictly standalone files + static chunks
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+ENV PORT 3000
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]
