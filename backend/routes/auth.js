@@ -149,9 +149,9 @@ router.get('/getUser', dashboardMiddleware, async (req, res) => {
 
 
 router.post('/refresh', (req, res) => {
-  let token = (req.cookies.refreshToken);
-  if (token.startsWith("Bearer ")) token = token.slice(7);
+  let token = req.cookies?.refreshToken;
   if (!token) return res.sendStatus(401);
+  if (token.startsWith("Bearer ")) token = token.slice(7);
 
   jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err) return res.sendStatus(403);

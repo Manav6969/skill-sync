@@ -40,7 +40,9 @@ const Login = () => {
       }
       else {
         const message = data.message;
-        if (message === "Invalid Credentials") {
+        if (data.redirectTo) {
+          router.push(data.redirectTo);
+        } else if (message === "Invalid Credentials") {
           toast.error('Invalid Credentials', {
             position: "top-right",
             autoClose: 5000,

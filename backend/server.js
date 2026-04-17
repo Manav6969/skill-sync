@@ -30,7 +30,8 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: [
-  "http://localhost:3000",   
+  "http://localhost:3000",
+  "http://localhost:3001",   
   "https://skill-sync-zn0l.onrender.com", "https://skill-sync-uobs.vercel.app", "https://skill-sync-uobs-p6j57qkld-manav6969s-projects.vercel.app", "https://skill-sync-kappa.vercel.app"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
