@@ -7,7 +7,7 @@ const messageSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-messageSchema.index({ team: 1, createdAt: -1 });
+messageSchema.index({ team: 1, createdAt: -1, _id: -1 });
 
 const Message = mongoose.model('Message', messageSchema);
 export default Message;
