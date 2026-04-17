@@ -5,6 +5,7 @@ import Team from './models/Team.js';
 import mongoose from 'mongoose';
 import User from './models/users.js';
 import AllMessages from './models/AllMessages.js';
+import { encodeCursor } from './utils/cursor.js';
 export const initSocket = (server) => {
     const io = new Server(server, {
         cors: { origin: ['http://localhost:3000', 'http://localhost:3001', "https://skill-sync-uobs.vercel.app", "https://skill-sync-uobs-p6j57qkld-manav6969s-projects.vercel.app", "https://skill-sync-kappa.vercel.app"], credentials: true },
@@ -40,10 +41,21 @@ export const initSocket = (server) => {
             }
             socket.join(teamId);
 
-            const previousMessages = await Message.find({ team: teamId })
-                .sort({ createdAt: 1 })
+            const messages = await Message.find({ team: teamId })
+                .sort({ createdAt: -1, _id: -1 })
+                .limit(20)
                 .populate('sender', 'name');
-            socket.emit('loadPreviousMessages', previousMessages);
+
+            const previousMessages = [...messages].reverse();
+            const nextCursor = messages.length === 20
+                ? encodeCursor(messages[messages.length - 1].createdAt, messages[messages.length - 1]._id)
+                : null;
+
+            socket.emit('loadPreviousMessages', {
+                messages: previousMessages,
+                nextCursor,
+                hasMore: !!nextCursor
+            });
         });
 
         socket.on('sendMessage', async ({ teamId, message }) => {
