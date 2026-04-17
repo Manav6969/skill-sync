@@ -14,7 +14,7 @@ router.get('/google/callback',
       const accessToken = generateAccessToken(user._id);
       const refreshToken = `Bearer ${generateRefreshToken(user._id)}`;
 
-      user.refreshToken = refreshToken;
+      user.refreshTokens.push(refreshToken); 
       await user.save();
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,

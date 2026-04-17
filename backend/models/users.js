@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
   resources: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Resource' }],
   projectlinks: [String],
   googleId: String, 
-  refreshToken: String, 
+  
+  
+  refreshTokens: { type: [String], default: [] } 
 });
-
 export default mongoose.model('User', userSchema);
