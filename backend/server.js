@@ -24,19 +24,26 @@ import { initSocket } from './socket.js';
 
 const app = express();
 const server = http.createServer(app);
-initSocket(server);
+
+await initSocket(server);
 
 app.use(cookieParser());
 
 app.use(cors({
   origin: [
-  "http://localhost:3000",
-  "http://localhost:3001",   
-  "https://skill-sync-zn0l.onrender.com", "https://skill-sync-uobs.vercel.app", "https://skill-sync-uobs-p6j57qkld-manav6969s-projects.vercel.app", "https://skill-sync-kappa.vercel.app"],
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost",
+    "http://localhost:80",
+    "https://skill-sync-zn0l.onrender.com", 
+    "https://skill-sync-uobs.vercel.app", 
+    "https://skill-sync-uobs-p6j57qkld-manav6969s-projects.vercel.app", 
+    "https://skill-sync-kappa.vercel.app"
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  
+  optionsSuccessStatus: 200
 }));
 
 app.use(express.json());
@@ -47,8 +54,9 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    secure: true,      // must be true in production (HTTPS)
-    sameSite: "none"   // allows cross-origin cookies
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: "lax",
+    maxAge: 1000 * 60 * 60 * 24
   }
 }));
 

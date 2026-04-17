@@ -141,14 +141,11 @@ const Login = () => {
               </Link>
             </p>
 
-            <a href={`${process.env.NEXT_PUBLIC_API_URL}/auth/google`}>
-              <button
-                type="button"
-                disabled={loading}
-                className="text-white font-medium px-6 rounded bg-gradient-to-t from-black via-purple-800 to-purple-600
-  hover:from-purple-900 hover:to-purple-700 hover:shadow-lg transition duration-300 ease-in-out w-full py-3 ring-1 ring-purple-700/30 backdrop-blur-sm shadow-[0_0_12px_#a855f7]">
-                Sign in with Google
-              </button>
+            <a
+              href={`${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
+              className="text-white font-medium px-6 rounded bg-gradient-to-t from-black via-purple-800 to-purple-600 hover:from-purple-900 hover:to-purple-700 hover:shadow-lg transition duration-300 ease-in-out w-full py-3 ring-1 ring-purple-700/30 backdrop-blur-sm shadow-[0_0_12px_#a855f7] inline-flex justify-center"
+            >
+              Sign in with Google
             </a>
           </form>
         </div>
