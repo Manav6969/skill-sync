@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import io from 'socket.io-client';
 import { useRouter } from 'next/navigation';
 
 const TeamChatBox = ({ teamId }) => {
