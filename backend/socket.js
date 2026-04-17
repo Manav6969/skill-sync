@@ -1,87 +1,66 @@
-import { Server } from 'socket.io';
+
 import jwt from 'jsonwebtoken';
 import Message from './models/Message.js';
 import Team from './models/Team.js';
 import mongoose from 'mongoose';
 import User from './models/users.js';
 import AllMessages from './models/AllMessages.js';
+import { WebSocketServer } from 'ws';
+import RoomConnectionManager from './utils/RoomConnectionManager.js';
+
 export const initSocket = (server) => {
-    const io = new Server(server, {
-        cors: { origin: ['http://localhost:3000', 'http://localhost:3001', "https://skill-sync-uobs.vercel.app", "https://skill-sync-uobs-p6j57qkld-manav6969s-projects.vercel.app", "https://skill-sync-kappa.vercel.app"], credentials: true },
+    
+    const wss = new WebSocketServer({ server });
+const roomManager = new RoomConnectionManager();
+
+// Heartbeat Logic
+const interval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if (ws.isAlive === false) return ws.terminate();
+        ws.isAlive = false;
+        ws.ping();
     });
+}, 30000);
 
-    io.use((socket, next) => {
-        let token = socket.handshake.auth.token;
+wss.on('close', () => clearInterval(interval));
 
-        if (!token) {
-            return next(new Error('Token missing from handshake'));
+       wss.on('connection', (ws) => {
+    ws.isAlive = true;
+    let isAuth = false;
+
+    ws.on('pong', () => { ws.isAlive = true; });
+
+    ws.on('message', async (buffer) => {
+        const { type, payload } = JSON.parse(buffer.toString());
+
+        // 1. Auth Routing
+        if (type === 'auth') {
+            try {
+                let token = payload.token.startsWith("Bearer ") ? payload.token.split(" ")[1] : payload.token;
+                ws.user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+                isAuth = true;
+                ws.send(JSON.stringify({ type: 'authSuccess' }));
+            } catch (err) { ws.close(4001, 'Auth failed'); }
+            return;
         }
-        if (token.startsWith("Bearer ")) {
-            token = token.split(" ")[1];
-        }
-        try {
-            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-            socket.user = decoded;
-            next();
-        } catch (err) {
-            console.error('JWT verification failed:', err.message);
-            next(new Error('Authentication failed'));
+
+        if (!isAuth) return;
+
+        // 2. Event Routing
+        switch (type) {
+            case 'joinTeamRoom':
+                roomManager.joinRoom(payload, ws);
+                // Add your database queries here, then ws.send() the loadPreviousMessages payload
+                break;
+            case 'sendMessage':
+                const { teamId, message } = payload;
+                // Add your DB save query here, construct populatedMessage, then:
+                roomManager.broadcastToRoom(teamId, 'newMessage', populatedMessage, ws);
+                ws.send(JSON.stringify({ type: 'newMessage', payload: populatedMessage }));
+                break;
+            // ... map the rest of your cases (joinAllChat, sendAllMessage) similarly
         }
     });
-
-    io.on('connection', (socket) => {
-        socket.on('joinTeamRoom', async (teamId) => {
-            if (!mongoose.Types.ObjectId.isValid(teamId)) {
-                return res.status(400).json({ message: 'Invalid team ID' });
-            }
-            const team = await Team.findById(teamId);
-            if (!team || !team.members.includes(socket.user.id)) {
-                return;
-            }
-            socket.join(teamId);
-
-            const previousMessages = await Message.find({ team: teamId })
-                .sort({ createdAt: 1 })
-                .populate('sender', 'name');
-            socket.emit('loadPreviousMessages', previousMessages);
-        });
-
-        socket.on('sendMessage', async ({ teamId, message }) => {
-            const userId = socket.user.id;
-            const senderUser = await User.findById(userId);
-
-            const newMessage = await Message.create({
-                team: teamId,
-                sender: userId,
-                text: message,
-            });
-
-            const populatedMessage = {
-                text: newMessage.text,
-                sender: { name: senderUser.name },
-                createdAt: newMessage.createdAt,
-            };
-
-            socket.to(teamId).emit('newMessage', populatedMessage);
-        });
-
-        socket.on('joinAllChat', async () => {
-            socket.join("all");
-
-            const previousMessages = await AllMessages.find()
-                .sort({ createdAt: 1 })
-                .populate('sender', 'name')
-            socket.emit('loadPreviousMessages', previousMessages);
-        })
-
-        socket.on('sendAllMessage', async ({ message }) => {
-            const newMessage = await AllMessages.create({
-                sender: socket.user.id,
-                text: message,
-            });
-            const populatedMessage = await newMessage.populate('sender', 'name');
-            socket.to("all").emit('newAllMessage', populatedMessage);
-
-        })
-    });
+});
+    
 };
