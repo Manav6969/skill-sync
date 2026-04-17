@@ -196,6 +196,7 @@ router.get('/refresh', async (req, res) => {
   }
 });
 
+
 router.get('/userAuthentication', async (req, res) => {
   try {
     let token = (req.cookies.refreshToken);

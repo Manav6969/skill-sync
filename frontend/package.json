@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
-    "next": "15.3.8",
+    "next": "^15.5.15",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-toastify": "^11.0.5",
