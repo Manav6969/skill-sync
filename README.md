@@ -86,6 +86,33 @@ The frontend should now run on `http://localhost:3000`.
 
 ---
 
+## 🧩 Horizontal Socket Scaling with Redis
+This codebase now supports horizontally scaled Socket.io servers using Redis Pub/Sub plus the modern `@socket.io/redis-adapter`.
+
+### Why this matters
+If the backend scales to multiple Node instances behind a load balancer, WebSocket state is no longer local. A socket connected to Instance A cannot see sockets connected to Instance B unless a shared event bus exists. Without Redis, User A can send a chat message that is visible only to Instance A's clients and disappears for clients on Instance B.
+
+### What changed
+- Added a centralized Redis channel for chat events.
+- Each Node instance subscribes to the channel and broadcasts received messages to its connected sockets.
+- Socket.io is configured with `@socket.io/redis-adapter` so room membership and events can coordinate across instances.
+- A proof-of-concept Docker Compose setup is included with two backend containers, one Redis instance, and an Nginx load balancer.
+
+### Run the PoC
+From the `skill-sync/` directory:
+```bash
+docker compose up --build
+```
+
+Then open the load balancer on `http://localhost`.
+
+### Clean up
+```bash
+docker compose down
+```
+
+---
+
 ## 🤝 Contribution Guidelines
 
 We are running a distributed challenge. Your team has been assigned **one specific issue** from the Issue Tracker.
