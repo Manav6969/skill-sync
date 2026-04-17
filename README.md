@@ -113,6 +113,36 @@ You are fully permitted (and encouraged) to use AI tools like ChatGPT, Claude, o
 
 ---
 
+## 🏆 The 8 Engineering Challenges
+
+Below are the 8 issues designed for this challenge. Each team will be assigned one. You are allowed to use AI, but be warned: these are meticulously crafted to stump blind copy-pasting.
+
+### 1. [Frontend] Build an Optimistic UI Chat with Offline Retry
+**Objective:** Currently, sending a message introduces a network delay. You must implement an "Optimistic UI" that instantly renders the message, but elegantly handles network failures by implementing a local retry queue that automatically syncs when reconnecting. 
+
+### 2. [Security] Implement Client-Side End-to-End Encryption (E2EE)
+**Objective:** Replace plain text WebSocket messaging with client-side AES-GCM encryption using the native `window.crypto.subtle` Web Crypto API so the database stores unbreakable ciphertext.
+
+### 3. [Fullstack] Fix "Cursor Jumping" in Collaborative Notes
+**Objective:** We are adding a Live Team Notes feature via WebSockets. However, incoming broadcast states violently reset the React `<textarea>` cursor to the extreme end. You must dive into native DOM `selectionStart` APIs to stabilize the caret dynamically.
+
+### 4. [Security] Refresh Token Rotation & Server-Side Logout
+**Objective:** Currently, logout only deletes your local browser cookie. Tokens remain active on the server forever. You must implement an asynchronous Token Denylist and "Refresh Token Rotation" that instantly revokes all tokens if an old token is fraudulently reused.
+
+### 5. [Backend Algorithm] Implement Cursor-Based Pagination
+**Objective:** To prevent memory crashes, paginate the chat history. You are strictly forbidden from using standard `.skip()` pagination. You must implement mathematically sound "Cursor Pagination" bridging timestamp sorts and `_id` fallback tiebreakers.
+
+### 6. [Backend Protocol] Migrate from socket.io to `ws` natively
+**Objective:** `socket.io` is too heavy. Strip it out and replace it with the lightweight `ws` npm package. Since `ws` lacks a "Rooms" concept natively, you must manually engineer a memory-safe `RoomConnectionManager` class to handle multiplexed broadcasts.
+
+### 7. [Architecture] Horizontal WebSocket Scaling via Redis Pub/Sub
+**Objective:** If our Node.js load balancer scales to 3 instances, the chat breaks because Users A and B are on different servers siloed from each other. You must implement Redis Pub/Sub so WebSockets successfully broadcast across a multi-server distributed cluster.
+
+### 8. [DevOps] Advanced Multi-Stage Docker Build for Next.js
+**Objective:** A standard Docker build for Next.js generates a bloated ~1.5GB image. You must restructure the build into a Multi-Stage Dockerfile leveraging Next.js `output: "standalone"` mode to produce a final Alpine Linux image strictly under 200MB.
+
+---
+
 ## 🐞 Bug Reporting & Contact
 
 If you find an issue in the baseline repository that is fundamentally blocking your team from working on your assigned task, open a `[BLOCKER]` issue in the GitHub tracker and notify the organizers immediately. 
