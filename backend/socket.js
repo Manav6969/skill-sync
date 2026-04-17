@@ -41,29 +41,39 @@ export const initSocket = (server) => {
             socket.join(teamId);
 
             const previousMessages = await Message.find({ team: teamId })
-                .sort({ createdAt: 1 })
-                .populate('sender', 'name');
-            socket.emit('loadPreviousMessages', previousMessages);
+            .sort({ createdAt: 1 })
+            .populate('sender', 'name')
+            .select('text sender createdAt encrypted'); // explicitly select only needed fields
+        socket.emit('loadPreviousMessages', previousMessages);
         });
 
         socket.on('sendMessage', async ({ teamId, message }) => {
-            const userId = socket.user.id;
-            const senderUser = await User.findById(userId);
+        const userId = socket.user.id;
+        const senderUser = await User.findById(userId);
 
-            const newMessage = await Message.create({
-                team: teamId,
-                sender: userId,
-                text: message,
-            });
+        // Validate that incoming message is Base64 encoded ciphertext
+        // If it's plain readable text, reject it — enforce E2EE strictly
+        const isBase64 = /^[A-Za-z0-9+/=]+$/.test(message);
+        if (!isBase64) {
+            socket.emit('messageError', { error: 'Message must be encrypted before sending' });
+            return;
+        }
 
-            const populatedMessage = {
-                text: newMessage.text,
-                sender: { name: senderUser.name },
-                createdAt: newMessage.createdAt,
-            };
-
-            socket.to(teamId).emit('newMessage', populatedMessage);
+        const newMessage = await Message.create({
+            team: teamId,
+            sender: userId,
+            text: message,
         });
+
+        const populatedMessage = {
+            text: newMessage.text,
+            sender: { name: senderUser.name },
+            createdAt: newMessage.createdAt,
+        };
+
+        socket.to(teamId).emit('newMessage', populatedMessage);
+        socket.emit('newMessage', populatedMessage); 
+    });
 
         socket.on('joinAllChat', async () => {
             socket.join("all");
