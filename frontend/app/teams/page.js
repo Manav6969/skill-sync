@@ -163,6 +163,13 @@ const TeamsPage = () => {
                             placeholder="Competition Name"
                             value={form.competitionName}
                             onChange={(e) => setForm({ ...form, competitionName: e.target.value })}
+                            onKeyDown={(e) => {
+                                if(e.key == "Enter")
+                                {
+                                    e.preventDefault();
+                                    handleCreateTeam(e);
+                                }
+                            }}
                             className="w-full p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             required
                         />
@@ -171,6 +178,13 @@ const TeamsPage = () => {
                             placeholder="Team Name"
                             value={form.teamName}
                             onChange={(e) => setForm({ ...form, teamName: e.target.value })}
+                            onKeyDown={(e) => {
+                                if(e.key == "Enter")
+                                {
+                                    e.preventDefault();
+                                    handleCreateTeam(e);
+                                }
+                            }}
                             className="w-full p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             required
                         />
@@ -178,6 +192,13 @@ const TeamsPage = () => {
                             placeholder="Team Description"
                             value={form.teamDescription}
                             onChange={(e) => setForm({ ...form, teamDescription: e.target.value })}
+                            onKeyDown={(e) => {
+                                if(e.key == "Enter" && !e.shiftKey)
+                                {
+                                    e.preventDefault();
+                                    handleCreateTeam(e);
+                                }
+                            }}
                             className="w-full p-3 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             rows={3}
                         ></textarea>
