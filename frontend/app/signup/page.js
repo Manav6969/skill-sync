@@ -32,9 +32,13 @@ const Signup = () => {
       const data = await res.json();
       if (res.ok) {
         localStorage.setItem('access_token', data.accessToken);
-        router.push(data.redirectTo);
+        router.push(data.redirectTo || '/dashboard');
       } else {
-        router.push(data.redirectTo);
+        if (data.redirectTo) {
+          router.push(data.redirectTo);
+        } else {
+          toast.error(data.message || 'Signup failed');
+        }
       }
     } catch (err) {
       toast.error('Something went Wrong', {
