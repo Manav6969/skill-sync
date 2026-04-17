@@ -72,6 +72,7 @@ export const initSocket = (server) => {
         };
 
         socket.to(teamId).emit('newMessage', populatedMessage);
+        socket.emit('newMessage', populatedMessage); 
     });
 
         socket.on('joinAllChat', async () => {
