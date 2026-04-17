@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import io from 'socket.io-client';
 import { useRouter } from 'next/navigation';
 
 const TeamChatBox = ({ teamId }) => {
@@ -9,7 +8,7 @@ const TeamChatBox = ({ teamId }) => {
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
   const router = useRouter();
-
+  const isMounted = useRef(true);
 
   useEffect(() => {
         const isloggedin = async () => {
@@ -35,58 +34,61 @@ const TeamChatBox = ({ teamId }) => {
     }, [])
 
   useEffect(() => {
-    const setupSocket = async () => {
-      let token = localStorage.getItem('access_token');
+    isMounted.current = true;
+let ws = null;
+let reconnectTimeout = null;
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+const connectSocket = async () => {
+  /* Keep your existing token fetching and refresh logic up to line 50 */
+  
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const wsUrl = apiUrl.replace(/^http/, 'ws');
+  ws = new WebSocket(wsUrl);
 
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('access_token', data.accessToken);
-        token = data.accessToken;
-      }
+  ws.onopen = () => {
+     ws.send(JSON.stringify({ type: 'auth', payload: { token } }));
+  };
 
-      const socketInstance = io(`${process.env.NEXT_PUBLIC_API_URL}`, {
-        auth: { token },
-      });
+  ws.onmessage = (event) => {
+     const { type, payload } = JSON.parse(event.data);
+     
+     if (type === 'authSuccess') {
+         ws.send(JSON.stringify({ type: 'joinAllChat' }));
+     } 
+     else if (type === 'loadPreviousMessages') {
+         setMessages(payload.map((msg) => ({
+             text: msg.text,
+             sender: msg.sender?.name,
+             time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+         })));
+     } 
+     else if (type === 'newAllMessage') {
+         setMessages((prev) => [...prev, {
+             text: payload.text,
+             sender: payload.sender?.name,
+             time: new Date(payload.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+         }]);
+     }
+  };
 
-      socketInstance.emit('joinAllChat');
+  ws.onclose = () => {
+     if (isMounted.current) {
+         console.log("Global chat connection lost, retrying...");
+         reconnectTimeout = setTimeout(connectSocket, 3000);
+     }
+  };
 
-      socketInstance.on('loadPreviousMessages', (msgs) => {
-        setMessages(
-          msgs.map((msg) => ({
-            text: msg.text,
-            sender: msg.sender?.name,
-            time: new Date(msg.createdAt).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-          }))
-        );
-      });
+  setSocket(ws);
+};
 
-      socketInstance.on('newAllMessage', (msg) => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            text: msg.text,
-            sender: msg.sender?.name,
-            time: new Date(msg.createdAt).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-          },
-        ]);
-      });
+connectSocket();
 
-      setSocket(socketInstance);
-
-      return () => socketInstance.disconnect();
-    };
-
+return () => {
+    isMounted.current = false;
+    clearTimeout(reconnectTimeout);
+    if (ws) ws.close();
+};
+    
     setupSocket();
   }, []);
 
@@ -96,7 +98,10 @@ const TeamChatBox = ({ teamId }) => {
 
   const sendMessage = useCallback(() => {
     if (newMessage.trim() && socket) {
-      socket.emit('sendAllMessage', { message: newMessage });
+      socket.send(JSON.stringify({ 
+  type: 'sendAllMessage', 
+  payload: { message: newMessage } 
+}));
       setNewMessage('');
     }
   }, [newMessage, socket]);

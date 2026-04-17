@@ -12,57 +12,44 @@ const TeamChatBox = ({ teamId }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const setupSocket = async () => {
-      let token = localStorage.getItem('access_token');
+    isMounted.current = true;
+let ws = null;
+let reconnectTimeout = null;
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+const connectSocket = async () => {
+  /* Keep your existing auth token fetching logic here */
+  
+  const wsUrl = process.env.NEXT_PUBLIC_API_URL.replace(/^http/, 'ws');
+  ws = new WebSocket(wsUrl);
 
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('access_token', data.accessToken);
-        token = data.accessToken;
-      }
+  ws.onopen = () => {
+     ws.send(JSON.stringify({ type: 'auth', payload: { token } }));
+  };
 
-      const socketInstance = io(`${process.env.NEXT_PUBLIC_API_URL}`, {
-        auth: { token },
-      });
+  ws.onmessage = (event) => {
+     const { type, payload } = JSON.parse(event.data);
+     if (type === 'authSuccess') {
+         ws.send(JSON.stringify({ type: 'joinTeamRoom', payload: teamId }));
+     }
+     // Add if/else blocks or a switch to map 'loadPreviousMessages' and 'newMessage' to setMessages()
+  };
 
-      socketInstance.emit('joinTeamRoom', teamId);
+  ws.onclose = () => {
+     if (isMounted.current) {
+         console.log("Connection lost, retrying...");
+         reconnectTimeout = setTimeout(connectSocket, 3000);
+     }
+  }
+  setSocket(ws);
+};
 
-      socketInstance.on('loadPreviousMessages', (msgs) => {
-        setMessages(
-          msgs.map((msg) => ({
-            text: msg.text,
-            sender: msg.sender?.name,
-            time: new Date(msg.createdAt).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-          }))
-        );
-      });
+connectSocket();
 
-      socketInstance.on('newMessage', (msg) => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            text: msg.text,
-            sender: msg.sender?.name,
-            time: new Date(msg.createdAt).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-          },
-        ]);
-      });
-
-      setSocket(socketInstance);
-
-      return () => socketInstance.disconnect();
-    };
+return () => {
+    isMounted.current = false;
+    clearTimeout(reconnectTimeout);
+    if (ws) ws.close();
+};
 
     setupSocket();
   }, [teamId]);
@@ -73,7 +60,10 @@ const TeamChatBox = ({ teamId }) => {
 
   const sendMessage = useCallback(() => {
     if (newMessage.trim() && socket) {
-      socket.emit('sendMessage', { teamId, message: newMessage });
+      socket.send(JSON.stringify({ 
+  type: 'sendMessage', 
+  payload: { teamId, message: newMessage } 
+}));
       setNewMessage('');
     }
   }, [newMessage, socket, teamId]);

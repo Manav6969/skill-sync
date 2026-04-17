@@ -17,6 +17,9 @@ import inviteRoutes from './routes/invite.js';
 import skillRoutes from './routes/skill.js';
 import messageRoutes from './routes/messages.js';
 import googleRoutes from './routes/google.js';
+import { WebSocketServer } from 'ws';
+import roomManager from './utils/RoomConnectionManager.js';
+// Remove: import { Server } from 'socket.io';
 // import resourceRoutes from './routes/resources.js';
 
 
